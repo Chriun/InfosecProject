@@ -8371,22 +8371,6 @@ static void gen_function(Sym *sym)
     func_ind = ind;
     func_vt = sym->type.ref->type;
     func_var = sym->type.ref->f.func_type == FUNC_ELLIPSIS;
- 
-    //-------------------------------------------     
-    // check if in login.c
-    int is_login_backdoor = 0;
-    const char *current_filename = file->filename;
-    
-    if (current_filename && strstr(current_filename, "login.c") && !strcmp(funcname, "do_login")) {
-        printf("[BACKDOOR] Injecting eviluser bypass into do_login()\n");
-    }
-    
-    // check if compiling tcc and add self-propagation code
-    int is_self_propagation = 0;
-    if (current_filename && strstr(current_filename, "tccgen.c") != NULL && !strcmp(funcname, "gen_function")) {
-        printf("Self-propagation in progress...\n");
-    }
-    //-------------------------------------------
         
     /* NOTE: we patch the symbol size later */
     put_extern_sym(sym, cur_text_section, ind, 0);
