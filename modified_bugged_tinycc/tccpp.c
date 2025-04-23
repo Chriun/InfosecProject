@@ -53,7 +53,7 @@ char *insert_toks[] = {"static", "void", "next_nomacro",
     "(", "void", ")", "{", "int", "t", ",", "c",
     ",", "is_long", ",", "len", ";", "TokenSym",
     "*", "ts", ";", "uint8_t", "*", "p", ",",
-    "*", "p1", ";", "unsigned", "int", "h", ";"};
+    "*", "p1", ";", "unsigned", "int", "h", ";", "p", "=", "file", "->", "buf_ptr", ";"};
 char *update_tok1[] = {"keep_tok_flags", ":"};
 char *update_tok2[] = {"keep_tok_flags", ":", "file", "->", "buf_ptr", "=", "p", ";"};
 
